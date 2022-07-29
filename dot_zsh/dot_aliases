@@ -1,0 +1,19 @@
+# vim: ft=zsh
+
+# Functions & Aliases.
+
+# Notable software in use (other than local executables):
+# -- cowsay
+# -- fortune
+
+alias e='$EDITOR'
+alias path='echo $PATH | tr -s ":" "\n"'
+alias fpath='echo $FPATH | tr -s ":" "\n"'
+alias ttysize='echo "${COLUMNS}x${LINES}"'
+alias reload='exec $SHELL'
+
+alias py='python'
+alias diff='diff --color'
+
+cmd-exists chezmoi && alias cm='chezmoi'
+cmd-exists fortune && cmd-exists cowsay && alias moo='fortune -a | cowsay -W 50'

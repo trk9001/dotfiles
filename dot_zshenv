@@ -1,0 +1,50 @@
+# vim: ft=zsh
+
+ZSHD=${ZDOTDIR:-~/.zsh}
+
+# Path shenanigans.
+typeset -U path PATH fpath FPATH
+bins=(~/bin ~/.local/bin ~/.cargo/bin ~/.nodenv/bin ~/.pyenv/bin)
+for bin in $bins; do; [[ -d $bin ]] && path=($bin $path); done
+fpath=($ZSHD/functions $fpath)
+export PATH
+unset bins
+
+# Enable less to process ANSI color escape sequences.
+export LESS='-R'
+
+# Termcap-to-terminfo escape sequence translations for less (the pager).
+# This allows for better color support in man pages (with PAGER=less).
+# See https://unix.stackexchange.com/a/147.
+if [[ $(tput colors) -ge 8 ]]; then
+    export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)
+    export LESS_TERMCAP_md=$(tput bold; tput setaf 6)
+    export LESS_TERMCAP_me=$(tput sgr0)
+    export LESS_TERMCAP_so=$(tput bold; tput setaf 3; tput setab 4)
+    export LESS_TERMCAP_se=$(tput rmso; tput sgr0)
+    export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 7)
+    export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)
+    export LESS_TERMCAP_mr=$(tput rev)
+    export LESS_TERMCAP_mh=$(tput dim)
+    export LESS_TERMCAP_ZN=$(tput ssubm)
+    export LESS_TERMCAP_ZV=$(tput rsubm)
+    export LESS_TERMCAP_ZO=$(tput ssupm)
+    export LESS_TERMCAP_ZW=$(tput rsupm)
+    export GROFF_NO_SGR=1
+fi
+
+# Tell GPG which tty to use for authentication.
+export GPG_TTY=$TTY
+
+# Non-standard p10k config location.
+p10kcfg=p10k
+if [[ $TTY =~ 'tty' || $TERM != (xterm*|rxvt*|screen) ]]; then
+    p10kcfg=${p10kcfg}-ascii
+fi
+export POWERLEVEL9K_CONFIG_FILE=$ZSHD/prompts/${p10kcfg}.zsh
+unset p10kcfg
+
+# Export secrets.
+[[ -f $ZSHD/.secrets ]] && source $ZSHD/.secrets
+
+unset ZSHD

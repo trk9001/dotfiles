@@ -1,0 +1,18 @@
+# vim: ft=zsh
+
+# Exa wrapper to have directories listed first unless a sort is requested.
+
+# Option that controls grouping directories first.
+GDFOPT='--group-directories-first'
+
+for word in $@; do
+    # Run as is if GDFOPT is explicitly given or a sort option is present.
+    if [[ $word = $GDFOPT || $word = '--sort' || $word =~ '^-.*s.*' ]]; then
+        command exa "$@"
+        return $?
+    fi
+done
+
+# Otherwise run with GDFOPT prepended to the arguments.
+command exa $GDFOPT "$@"
+return $?

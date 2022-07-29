@@ -1,0 +1,16 @@
+# vim: ft=zsh
+
+# Preferred applications.
+export TERMCMD=kitty
+export TERMINAL=kitty
+export VISUAL=nvim
+export EDITOR=nvim
+export PAGER=less
+
+# Configuration for my Polybar launch script.
+export POLYBAR_TRAY_MONITOR='eDP-1'
+export POLYBAR_BAR='i3bar'
+
+# Configuration for exa.
+export TIME_STYLE='long-iso'
+export EXA_STRICT=1

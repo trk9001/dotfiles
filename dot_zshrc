@@ -1,0 +1,127 @@
+# vim: ft=zsh
+
+ZSHD=${ZDOTDIR:-~/.zsh}
+
+# Utility to check if a command exists.
+cmd-exists() { command -v -- $1 >/dev/null 2>&1; }
+
+# Have direnv do its thing without hooking into the shell, at startup only.
+cmd-exists direnv && emulate zsh -c "$(direnv export zsh)"
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Now hook direnv into the shell, after the prompt initializes.
+cmd-exists direnv && emulate zsh -c "$(direnv hook zsh)"
+
+HISTSIZE=4000
+SAVEHIST=$HISTSIZE
+HISTFILE=$ZSHD/.history
+
+setopt local_options local_traps
+setopt inc_append_history hist_ignore_dups hist_find_no_dups hist_ignore_space
+setopt glob_dots extended_glob
+setopt auto_cd
+setopt beep
+setopt interactive_comments
+setopt print_exit_value
+unsetopt notify
+
+# Have zle use viins mode.
+bindkey -v
+
+# Run "autoload zkbd; zkbd" for this to work.
+if [[ -d ${ZDOTDIR:-~}/.zkbd ]]; then
+    zkbd_f=${ZDOTDIR:-~}/.zkbd/$TERM-${${DISPLAY:t}:-$VENDOR-$OSTYPE}
+    if [[ -f "$zkbd_f" ]]; then
+        source "$zkbd_f"
+        
+        # Fix bad binds.
+        [[ -n ${key[Home]} ]] && bindkey "${key[Home]}" beginning-of-line
+        [[ -n ${key[End]} ]] && bindkey "${key[End]}" end-of-line
+        [[ -n ${key[Delete]} ]] && bindkey "${key[Delete]}" delete-char
+
+        # Better history search with Up/Down keys.
+        autoload -Uz up-line-or-beginning-search
+        zle -N up-line-or-beginning-search
+        [[ -n ${key[Up]} ]] && bindkey "${key[Up]}" up-line-or-beginning-search
+        autoload -Uz down-line-or-beginning-search
+        zle -N down-line-or-beginning-search
+        [[ -n ${key[Down]} ]] && bindkey "${key[Down]}" down-line-or-beginning-search
+    fi
+    unset zkbd_f
+fi
+
+# Fix bad vi binds.
+bindkey '^H' backward-delete-char '^?' backward-delete-char
+bindkey -M vicmd '#' vi-pound-insert
+bindkey -M vicmd 'Y' vi-yank-eol
+bindkey -M vicmd 'yy' vi-yank-whole-line
+
+# Enable editing the command line in the editor.
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey -M vicmd '!' edit-command-line
+
+# Extra useful actions. See zshzle(1).
+bindkey '^Q' push-input
+bindkey '^R' history-incremental-search-backward
+bindkey '^S' history-incremental-search-forward
+
+# Disable flow control and take back ^S and ^Q.
+# See https://github.com/romkatv/powerlevel10k/issues/388 for the TTY thing.
+stty -ixon <$TTY >$TTY
+
+# Completions.
+autoload -Uz compinit
+compinit -d $ZSHD/.compdump
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' use-cache 1
+
+# Shell integration for pyenv.
+if cmd-exists pyenv; then
+    emulate zsh -c "$(pyenv init -)"
+    emulate zsh -c "$(pyenv virtualenv-init -)"
+fi
+
+# Shell integration for nodenv.
+cmd-exists nodenv && emulate zsh -c "$(nodenv init -)"
+
+# Load the powerlevel10k prompt theme if in a capable terminal.
+if [[ -d $ZSHD/plugins/powerlevel10k && -f $POWERLEVEL9K_CONFIG_FILE ]]; then
+    ZLE_RPROMPT_INDENT=0
+    source $ZSHD/plugins/powerlevel10k/powerlevel10k.zsh-theme
+    source $POWERLEVEL9K_CONFIG_FILE
+fi
+
+# Command auto suggestion plugin.
+if [[ -d $ZSHD/plugins/zsh-autosuggestions ]]; then
+    ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+    source $ZSHD/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+    bindkey '^ ' autosuggest-accept
+fi
+
+# Syntax highlighting plugin.
+if [[ -d $ZSHD/plugins/fast-syntax-highlighting ]]; then
+    source $ZSHD/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+fi
+
+# Kitty shell integration.
+if [[ -n "$KITTY_INSTALLATION_DIR" ]]; then
+    export KITTY_SHELL_INTEGRATION="no-rc no-cursor"
+    autoload -Uz -- "$KITTY_INSTALLATION_DIR"/shell-integration/zsh/kitty-integration
+    kitty-integration
+    unfunction kitty-integration
+fi
+
+# Load aliases.
+[[ -f $ZSHD/.aliases ]] && source $ZSHD/.aliases
+
+# Load custom functions.
+cmd-exists exa && autoload -Uz exa
+
+unset ZSHD

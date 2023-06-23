@@ -2,22 +2,6 @@
 
 ZSHD=${ZDOTDIR:-~/.zsh}
 
-# Utility to check if a command exists.
-cmd-exists() { command -v -- $1 >/dev/null 2>&1; }
-
-# Have direnv do its thing without hooking into the shell, at startup only.
-cmd-exists direnv && emulate zsh -c "$(direnv export zsh)"
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-# Now hook direnv into the shell, after the prompt initializes.
-cmd-exists direnv && emulate zsh -c "$(direnv hook zsh)"
-
 HISTSIZE=4000
 SAVEHIST=$HISTSIZE
 HISTFILE=$ZSHD/.history
@@ -28,8 +12,11 @@ setopt glob_dots extended_glob
 setopt auto_cd
 setopt beep
 setopt interactive_comments
-setopt print_exit_value
-unsetopt notify
+unsetopt flow_control list_beep notify
+
+# Alternatively use stty instead of unsetting FLOW_CONTROL.
+# See https://github.com/romkatv/powerlevel10k/issues/388 for the TTY thing.
+#   stty -ixon <$TTY >$TTY
 
 # Have zle use viins mode.
 bindkey -v
@@ -72,15 +59,36 @@ bindkey '^Q' push-input
 bindkey '^R' history-incremental-search-backward
 bindkey '^S' history-incremental-search-forward
 
-# Disable flow control and take back ^S and ^Q.
-# See https://github.com/romkatv/powerlevel10k/issues/388 for the TTY thing.
-stty -ixon <$TTY >$TTY
+# Unbind ^D from list-choices.
+bindkey -r '^D'
+
+# Utility to check if a command exists.
+cmd-exists() { command -v -- $1 >/dev/null 2>&1; }
+
+# Have direnv do its thing without hooking into the shell, at startup only.
+cmd-exists direnv && emulate zsh -c "$(direnv export zsh)"
+
+# Enable Powerlevel10k instant prompt.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Now hook direnv into the shell, after the prompt initializes.
+cmd-exists direnv && emulate zsh -c "$(direnv hook zsh)"
 
 # Completions.
 autoload -Uz compinit
 compinit -d $ZSHD/.compdump
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' use-cache 1
+
+#autoload -Uz fzf && fzf
+#source /usr/share/fzf/shell/key-bindings.zsh
+
+# Shell integration for luarocks.
+cmd-exists luarocks && emulate zsh -c "$(luarocks path --no-bin)"
 
 # Shell integration for pyenv.
 if cmd-exists pyenv; then
@@ -123,5 +131,9 @@ fi
 
 # Load custom functions.
 cmd-exists exa && autoload -Uz exa
+autoload -Uz get-chezmoi
+autoload -Uz get-helm
+autoload -Uz get-rust-analyzer
+autoload -Uz get-nvim-nightly
 
 unset ZSHD

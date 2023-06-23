@@ -1,0 +1,8 @@
+# vim: ft=zsh
+
+# Install or update the chezmoi binary.
+
+BINDIR="$HOME/.local/bin"
+INSTALLERURL='https://get.chezmoi.io'
+
+sh -c "$(curl -fsLS $INSTALLERURL)" -- -b $BINDIR

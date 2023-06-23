@@ -4,7 +4,7 @@ ZSHD=${ZDOTDIR:-~/.zsh}
 
 # Path shenanigans.
 typeset -U path PATH fpath FPATH
-bins=(~/bin ~/.local/bin ~/.cargo/bin ~/.nodenv/bin ~/.pyenv/bin)
+bins=(~/bin ~/.local/bin ~/.cargo/bin ~/.luarocks/bin ~/.nodenv/bin ~/.pyenv/bin)
 for bin in $bins; do; [[ -d $bin ]] && path=($bin $path); done
 fpath=($ZSHD/functions $fpath)
 export PATH

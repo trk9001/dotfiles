@@ -1,0 +1,21 @@
+# vim: ft=zsh
+
+# Install or update the nightly version of Neovim.
+
+setopt errexit
+
+ARCHIVE='nvim-linux64.tar.gz'
+RELEASEURL="https://github.com/neovim/neovim/releases/download/nightly/$ARCHIVE"
+DESTDIR="$HOME/Downloads"
+UNPACKEDDIR='nvim-linux64'
+BIN="$DESTDIR/$UNPACKEDDIR/bin/nvim"
+BINDIR="$HOME/.local/bin"
+TEMPDIR=$(mktemp -d)
+
+curl -fL $RELEASEURL -o $TEMPDIR/$ARCHIVE
+[[ -d $DESTDIR/$UNPACKEDDIR ]] && rm -rf $DESTDIR/$UNPACKEDDIR
+tar -xzf $TEMPDIR/$ARCHIVE -C $DESTDIR
+ln -fs $BIN $BINDIR
+# Install/update plugins.
+$BIN --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+rm -rf $TEMPDIR

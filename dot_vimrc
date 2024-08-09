@@ -13,6 +13,9 @@ endif
 " Saner splitting directions.
 set splitbelow splitright
 
+" Hide buffers when abandoned.
+set hidden
+
 " Relative line numbers.
 set number relativenumber
 
@@ -37,10 +40,6 @@ nnoremap <C-n> <Cmd>set invnumber invrelativenumber<CR>
 
 " More logical mapping for Y instead of yy.
 nnoremap Y y$
-
-" Draw the line with the search term at the top.
-"nnoremap n n zt zv
-"nnoremap N N zt zv
 
 " Force save files as sudo.
 cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <Bar> edit!

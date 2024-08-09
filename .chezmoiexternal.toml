@@ -1,3 +1,8 @@
+[".config/kitty/base16-kitty"]
+    type = "git-repo"
+    url = "https://github.com/kdrag0n/base16-kitty.git"
+    refreshPeriod = "168h"
+
 [".zsh/plugins/powerlevel10k"]
     type = "git-repo"
     url = "https://github.com/romkatv/powerlevel10k.git"

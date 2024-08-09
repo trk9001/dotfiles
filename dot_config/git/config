@@ -1,0 +1,18 @@
+[pull]
+    ff = only
+[core]
+    autocrlf = input
+[help]
+    autocorrect = prompt
+[alias]
+    i = init -b main
+    s = status -s
+    ss = status
+    co = checkout
+    b = branch
+    a = add
+    c = commit
+    l = log --oneline
+    ll = log
+[include]
+    path = hostconfig

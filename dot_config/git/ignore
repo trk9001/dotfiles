@@ -1,0 +1,7 @@
+.idea/
+
+.direnv/
+.envrc
+
+*.override.yaml
+*.override.yml

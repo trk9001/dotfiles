@@ -17,3 +17,5 @@ alias diff='diff --color'
 
 cmd-exists chezmoi && alias cm='chezmoi'
 cmd-exists fortune && cmd-exists cowsay && alias moo='fortune -a | cowsay -W 50'
+cmd-exists kubectl && alias k='kubectl'
+cmd-exists kubecolor && alias k='kubecolor'

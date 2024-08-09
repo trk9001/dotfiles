@@ -135,5 +135,8 @@ autoload -Uz get-chezmoi
 autoload -Uz get-helm
 autoload -Uz get-rust-analyzer
 autoload -Uz get-nvim-nightly
+cmd-exists kubectl && autoload -Uz get-krew
+cmd-exists eza && autoload -Uz eza
+autoload -Uz get-helmfile
 
 unset ZSHD

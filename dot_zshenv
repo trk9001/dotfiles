@@ -44,7 +44,4 @@ fi
 export POWERLEVEL9K_CONFIG_FILE=$ZSHD/prompts/${p10kcfg}.zsh
 unset p10kcfg
 
-# Export secrets.
-[[ -f $ZSHD/.secrets ]] && source $ZSHD/.secrets
-
 unset ZSHD

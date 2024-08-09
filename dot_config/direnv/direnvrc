@@ -1,0 +1,13 @@
+# vim: ft=bash
+
+# Prepend $PWD/.direnv/bin to the $PATH if it exists; this is useful if we need
+# to use tools (or specific versions of tools) that are only applicable in the
+# current directory tree.
+#
+# E.g.: kubectl v1.30 is installed system-wide, but for one project we need
+# kubectl v1.27. With this snippet, we can put the kubectl v1.27 binary in the
+# project's .direnv/bin directory, and continue to invoke kubectl just as we
+# normally would.
+if [[ -d "${PWD}/.direnv/bin" ]]; then
+    PATH_add ".direnv/bin"
+fi
